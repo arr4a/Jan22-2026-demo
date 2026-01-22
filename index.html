@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instructor Absence Communication Kit (IACK)</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; background: #f9f9f9; }
+h1 { text-align: center; }
+form { margin-bottom: 20px; }
+.card { background: #fff; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.card h2 { margin-top: 0; }
+.copy-btn { margin-top: 10px; padding: 5px 10px; border: none; background: #007bff; color: #fff; border-radius: 4px; cursor: pointer; }
+.copy-btn:hover { background: #0056b3; }
+textarea { width: 100%; height: 120px; padding: 10px; font-family: inherit; font-size: 1em; border-radius: 4px; border: 1px solid #ccc; }
+</style>
+</head>
+<body>
+<h1>Instructor Absence Communication Kit (IACK)</h1>
+<form id="configForm">
+<label>Absence Duration:
+<select id="duration">
+<option value="single">Single Class</option>
+<option value="week">One Week</option>
+<option value="variable">Variable</option>
+</select>
+</label>
+<br><br>
+<label>Course Format:
+<select id="format">
+<option value="lecture">Lecture</option>
+<option value="seminar">Seminar</option>
+</select>
+</label>
+<br><br>
+<label>Grading Status:
+<select id="grading">
+<option value="none">None Pending</option>
+<option value="pending">Pending</option>
+</select>
+<br><br>
+<button type="button" onclick="generateKit()">Generate Communication Kit</button>
+</form>
+
+
+<div class="card">
+<h2>Student FAQ</h2>
+<div contenteditable="true" id="faq" style="white-space: pre-wrap;"></div>
+<button class="copy-btn" onclick="copyText('faq')">Copy FAQ</button>
+</div>
+
+
+<div class="card">
+<h2>LMS Announcement / Email</h2>
+<div contenteditable="true" id="announcement" style="white-space: pre-wrap;"></div>
+<button class="copy-btn" onclick="copyText('announcement')">Copy Announcement</button>
+</div>
+
+
+<div class="card">
+<h2>Micro-Task Checklist</h2>
+<div contenteditable="true" id="tasks" style="white-space: pre-wrap;"></div>
+<button class="copy-btn" onclick="copyText('tasks')">Copy Tasks</button>
+</div>
+
+
+<script>
+function generateKit() {
+const duration = document.getElementById('duration').value;
+const format = document.getElementById('format').value;
+const grading = document.getElementById('grading').value;
+
+
+let faqText = `Q: Will the class meet as scheduled?\nA: Due to my absence, ${duration === 'single' ? 'this class will be canceled.' : 'classes may be rescheduled as needed.'}\n\nQ: How will assignments be handled?\nA: ${grading === 'pending' ? 'Pending assignments will be graded after I return.' : 'No assignments are affected.'}`;
+
+
+let announcementText = `Dear students,\\n\\nI will be ${duration === 'single' ? 'absent for our next class session' : 'unavailable during this period'}. ${format === 'lecture' ? 'Lecture content may be posted online.' : 'Seminar discussions will be paused.'} Please refer to the FAQ for details on assignments and class expectations.\\n\\nThank you for your understanding.`;
+
+
+let tasksText = `Pre-absence:\n- Notify students (done via kit)\n- Upload materials if needed\n\nDuring absence:\n- Monitor urgent student emails\n\nPost-absence:\n- Review missed content\n- Grade pending assignments`;
+
+
+document.getElementById('faq').textContent = faqText;
+document.getElementById('announcement').textContent = announcementText;
+document.getElementById('tasks').textContent = tasksText;
+}
+
+
+function copyText(id) {
+const el = document.getElementById(id);
+navigator.clipboard.writeText(el.textContent).then(() => {
+alert('Copied to clipboard');
+});
+}
+</script>
+</body>
+</html>
