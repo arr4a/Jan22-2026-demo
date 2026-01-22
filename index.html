@@ -3,95 +3,213 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Instructor Absence Communication Kit (IACK)</title>
+<title>Teaching Continuity Planner (TCP)</title>
 <style>
-body { font-family: Arial, sans-serif; margin: 20px; background: #f9f9f9; }
-h1 { text-align: center; }
-form { margin-bottom: 20px; }
-.card { background: #fff; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-.card h2 { margin-top: 0; }
-.copy-btn { margin-top: 10px; padding: 5px 10px; border: none; background: #007bff; color: #fff; border-radius: 4px; cursor: pointer; }
-.copy-btn:hover { background: #0056b3; }
-textarea { width: 100%; height: 120px; padding: 10px; font-family: inherit; font-size: 1em; border-radius: 4px; border: 1px solid #ccc; }
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0; padding: 0;
+    background: #f5f6f7;
+    color: #333;
+  }
+  header {
+    background: #2a3f5f;
+    color: #fff;
+    padding: 1rem;
+    text-align: center;
+  }
+  main {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 1rem;
+  }
+  .input-section, .output-section {
+    flex: 1 1 400px;
+    margin: 1rem;
+    background: #fff;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  h2 { color: #2a3f5f; margin-top: 0; }
+  label { display: block; margin-top: 0.5rem; font-weight: bold; }
+  input, select, textarea { width: 100%; margin-top: 0.25rem; padding: 0.5rem; border-radius: 5px; border: 1px solid #ccc; }
+  button {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    background: #2a3f5f;
+    color: #fff;
+    cursor: pointer;
+  }
+  button:hover { background: #1d2c45; }
+  .timeline {
+    display: flex;
+    overflow-x: auto;
+    margin-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  .week {
+    flex: 0 0 80px;
+    margin-right: 2px;
+    text-align: center;
+    padding: 0.25rem;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    position: relative;
+  }
+  .week.normal { background: #d0d4db; }
+  .week.critical { background: #f4d35e; }
+  .week.high-uncertainty { background: #ee6c4d; color: #fff; }
+  .week:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: -2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.75);
+    color: #fff;
+    padding: 0.25rem 0.5rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  textarea { min-height: 80px; }
+  .copy-btn { margin-top: 0.5rem; background: #3b82f6; }
+  .copy-btn:hover { background: #1e60d2; }
+  @media(max-width: 800px){
+    main { flex-direction: column; }
+  }
 </style>
 </head>
 <body>
-<h1>Instructor Absence Communication Kit (IACK)</h1>
-<form id="configForm">
-<label>Absence Duration:
-<select id="duration">
-<option value="single">Single Class</option>
-<option value="week">One Week</option>
-<option value="variable">Variable</option>
-</select>
-</label>
-<br><br>
-<label>Course Format:
-<select id="format">
-<option value="lecture">Lecture</option>
-<option value="seminar">Seminar</option>
-</select>
-</label>
-<br><br>
-<label>Grading Status:
-<select id="grading">
-<option value="none">None Pending</option>
-<option value="pending">Pending</option>
-</select>
-<br><br>
-<button type="button" onclick="generateKit()">Generate Communication Kit</button>
-</form>
-
-
-<div class="card">
-<h2>Student FAQ</h2>
-<div contenteditable="true" id="faq" style="white-space: pre-wrap;"></div>
-<button class="copy-btn" onclick="copyText('faq')">Copy FAQ</button>
-</div>
-
-
-<div class="card">
-<h2>LMS Announcement / Email</h2>
-<div contenteditable="true" id="announcement" style="white-space: pre-wrap;"></div>
-<button class="copy-btn" onclick="copyText('announcement')">Copy Announcement</button>
-</div>
-
-
-<div class="card">
-<h2>Micro-Task Checklist</h2>
-<div contenteditable="true" id="tasks" style="white-space: pre-wrap;"></div>
-<button class="copy-btn" onclick="copyText('tasks')">Copy Tasks</button>
-</div>
-
-
+<header>
+  <h1>Teaching Continuity Planner (TCP)</h1>
+</header>
+<main>
+  <section class="input-section">
+    <h2>Instructor Input</h2>
+    <label>Semester Start Date:</label>
+    <input type="date" id="semesterStart">
+    <label>Semester End Date:</label>
+    <input type="date" id="semesterEnd">
+    <label>Class Days:</label>
+    <select id="classDays" multiple>
+      <option value="Mon">Monday</option>
+      <option value="Tue">Tuesday</option>
+      <option value="Wed">Wednesday</option>
+      <option value="Thu">Thursday</option>
+      <option value="Fri">Friday</option>
+    </select>
+    <label>Expected Due Date:</label>
+    <input type="date" id="dueDate">
+    <label>Key Milestones (comma-separated):</label>
+    <input type="text" id="milestones" placeholder="Midterm: 2026-03-15, Final: 2026-05-10">
+    <button id="generateBtn">Generate Continuity Plan</button>
+  </section>
+  <section class="output-section">
+    <h2>Visual Timeline</h2>
+    <div id="timeline" class="timeline"></div>
+    <h2>Suggested Syllabus Clause</h2>
+    <textarea id="syllabusText"></textarea>
+    <button class="copy-btn" data-target="syllabusText">Copy Syllabus</button>
+    <h2>Department Summary</h2>
+    <textarea id="deptSummary"></textarea>
+    <button class="copy-btn" data-target="deptSummary">Copy Summary</button>
+  </section>
+</main>
 <script>
-function generateKit() {
-const duration = document.getElementById('duration').value;
-const format = document.getElementById('format').value;
-const grading = document.getElementById('grading').value;
-
-
-let faqText = `Q: Will the class meet as scheduled?\nA: Due to my absence, ${duration === 'single' ? 'this class will be canceled.' : 'classes may be rescheduled as needed.'}\n\nQ: How will assignments be handled?\nA: ${grading === 'pending' ? 'Pending assignments will be graded after I return.' : 'No assignments are affected.'}`;
-
-
-let announcementText = `Dear students,\\n\\nI will be ${duration === 'single' ? 'absent for our next class session' : 'unavailable during this period'}. ${format === 'lecture' ? 'Lecture content may be posted online.' : 'Seminar discussions will be paused.'} Please refer to the FAQ for details on assignments and class expectations.\\n\\nThank you for your understanding.`;
-
-
-let tasksText = `Pre-absence:\n- Notify students (done via kit)\n- Upload materials if needed\n\nDuring absence:\n- Monitor urgent student emails\n\nPost-absence:\n- Review missed content\n- Grade pending assignments`;
-
-
-document.getElementById('faq').textContent = faqText;
-document.getElementById('announcement').textContent = announcementText;
-document.getElementById('tasks').textContent = tasksText;
+function parseMilestones(input) {
+  const milestones = [];
+  input.split(',').forEach(item => {
+    const parts = item.split(':');
+    if(parts.length === 2) milestones.push({name: parts[0].trim(), date: new Date(parts[1].trim())});
+  });
+  return milestones;
 }
 
+function addDays(date, days){
+  const d = new Date(date);
+  d.setDate(d.getDate() + days);
+  return d;
+}
 
-function copyText(id) {
-const el = document.getElementById(id);
-navigator.clipboard.writeText(el.textContent).then(() => {
-alert('Copied to clipboard');
+function generateTimeline(semesterStart, semesterEnd, dueDate, milestones){
+  const timelineDiv = document.getElementById('timeline');
+  timelineDiv.innerHTML = '';
+  const start = new Date(semesterStart);
+  const end = new Date(semesterEnd);
+  const weeks = [];
+  let current = new Date(start);
+  while(current <= end){
+    weeks.push(new Date(current));
+    current.setDate(current.getDate() + 7);
+  }
+
+  const bufferWeeks = 1; // ±1 week around due date
+
+  weeks.forEach(weekStart => {
+    const weekEnd = addDays(weekStart,6);
+    const weekDiv = document.createElement('div');
+    weekDiv.classList.add('week');
+    weekDiv.textContent = `${weekStart.getMonth()+1}/${weekStart.getDate()}–${weekEnd.getMonth()+1}/${weekEnd.getDate()}`;
+    
+    // Determine week status
+    let status = 'Normal';
+    if(weekStart <= dueDate && dueDate <= addDays(weekEnd, bufferWeeks*7)){
+      weekDiv.classList.add('high-uncertainty');
+      status = 'High-Uncertainty';
+    } else if(milestones.some(m => m.date >= weekStart && m.date <= weekEnd)){
+      weekDiv.classList.add('critical');
+      status = 'Critical Milestone';
+    } else {
+      weekDiv.classList.add('normal');
+    }
+
+    weekDiv.setAttribute('data-tooltip', `${status}: ${weekStart.toLocaleDateString()} – ${weekEnd.toLocaleDateString()}`);
+    timelineDiv.appendChild(weekDiv);
+  });
+}
+
+function generateSyllabusClause(dueDate){
+  return `Suggested: In anticipation of potential absence around ${dueDate.toLocaleDateString()}, contingency measures will be applied to ensure continuity of instruction.`;
+}
+
+function generateDeptSummary(dueDate){
+  return `Suggested: The instructor has planned for high-uncertainty around the expected due date of ${dueDate.toLocaleDateString()}, including buffer periods and lower-stakes adjustments to preserve instructional quality.`;
+}
+
+document.getElementById('generateBtn').addEventListener('click', () => {
+  const semesterStart = document.getElementById('semesterStart').value;
+  const semesterEnd = document.getElementById('semesterEnd').value;
+  const dueDateVal = document.getElementById('dueDate').value;
+  const milestonesInput = document.getElementById('milestones').value;
+
+  if(!semesterStart || !semesterEnd || !dueDateVal){
+    alert('Please enter semester start, end, and expected due date.');
+    return;
+  }
+
+  const dueDate = new Date(dueDateVal);
+  const milestones = parseMilestones(milestonesInput);
+
+  generateTimeline(semesterStart, semesterEnd, dueDate, milestones);
+
+  document.getElementById('syllabusText').value = generateSyllabusClause(dueDate);
+  document.getElementById('deptSummary').value = generateDeptSummary(dueDate);
 });
-}
+
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const targetId = btn.dataset.target;
+    const textArea = document.getElementById(targetId);
+    textArea.select();
+    navigator.clipboard.writeText(textArea.value);
+    btn.textContent = 'Copied!';
+    setTimeout(()=> btn.textContent = 'Copy '+ (targetId === 'syllabusText'? 'Syllabus':'Summary'),1000);
+  });
+});
 </script>
 </body>
 </html>
